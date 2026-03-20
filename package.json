@@ -10,6 +10,12 @@
     "lint": "npm --prefix ./chair-company-website run lint",
     "postinstall": "npm --prefix ./chair-company-website install"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "next": "^14.2.35",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  }
 }
