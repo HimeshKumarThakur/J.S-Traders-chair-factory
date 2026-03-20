@@ -1,6 +1,6 @@
 import React from 'react';
 
-const WHATSAPP_NUMBER = '9779802357901';
+const WHATSAPP_NUMBER = '9779861829728';
 
 interface ProductCardProps {
   image?: string;

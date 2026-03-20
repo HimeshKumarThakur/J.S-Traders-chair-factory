@@ -80,7 +80,7 @@ const HelpPage: React.FC = () => {
       faqs: [
         {
           question: 'How can I contact customer support?',
-          answer: 'You can reach us via WhatsApp at +977-9802357901, email us, or visit our office in Dillibazaar, Kathmandu.',
+          answer: 'You can reach us via WhatsApp at +977 986-1829728, email us at j.s.traders@gmail.com, or visit our office at J.S. Traders, Kathmandu 44600.',
         },
         {
           question: 'What are your support hours?',
@@ -213,7 +213,7 @@ const HelpPage: React.FC = () => {
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-4">
             <a
-              href="https://wa.me/9779802357901?text=Hi%20J.S%20Traders!%20I%20need%20help%20with%20your%20products.%20Can%20you%20assist%20me?"
+              href="https://wa.me/9779861829728?text=Hi%20J.S%20Traders!%20I%20need%20help%20with%20your%20products.%20Can%20you%20assist%20me?"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex h-11 min-h-[44px] items-center rounded-xl bg-[#0F766E] px-6 text-sm font-semibold text-white transition hover:brightness-110"

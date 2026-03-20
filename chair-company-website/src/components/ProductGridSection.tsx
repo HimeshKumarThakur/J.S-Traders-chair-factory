@@ -99,7 +99,7 @@ const formatNPR = (value: number) =>
     maximumFractionDigits: 0,
   }).format(value);
 
-const WHATSAPP_NUMBER = '9779802357901';
+const WHATSAPP_NUMBER = '9779861829728';
 
 export default function ProductGridSection() {
   const [drawerOpen, setDrawerOpen] = useState(false);

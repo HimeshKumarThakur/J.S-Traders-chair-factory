@@ -3,9 +3,9 @@ import Head from 'next/head';
 import { useState } from 'react';
 
 const Contact: React.FC = () => {
-  const whatsappNumber = '+9779802357901';
-  const contactEmail = 'himeshthakur173@gmail.com';
-  const whatsappLink = `https://wa.me/9779802357901?text=${encodeURIComponent(
+  const whatsappNumber = '+977 986-1829728';
+  const contactEmail = 'j.s.traders@gmail.com';
+  const whatsappLink = `https://wa.me/9779861829728?text=${encodeURIComponent(
     'Hello J.S Traders, I want details about your chairs and showroom visit.',
   )}`;
   const [name, setName] = useState('');
@@ -48,7 +48,7 @@ const Contact: React.FC = () => {
                 WhatsApp {whatsappNumber}
               </a>
               <a
-                href="tel:+9779802357901"
+                href="tel:+9779861829728"
                 className="inline-flex h-11 min-h-[44px] items-center rounded-xl border border-black/15 bg-white px-5 text-sm font-semibold text-[#1A1A1A]"
               >
                 Call Now
@@ -119,16 +119,30 @@ const Contact: React.FC = () => {
               <div className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm sm:p-7">
                 <h2 className="text-xl font-[700] text-[#1A1A1A]">Visit us</h2>
                 <p className="mt-3 text-sm text-black/70">
-                  <span className="font-semibold">Address:</span> Dillibazaar, Kathmandu, Nepal
+                  <span className="font-semibold">Address:</span> J.S. Traders, Kathmandu 44600
                 </p>
                 <p className="mt-1 text-sm text-black/70">
                   <span className="font-semibold">WhatsApp:</span> {whatsappNumber}
                 </p>
                 <p className="mt-1 text-sm text-black/70">
+                  <span className="font-semibold">Email:</span> {contactEmail}
+                </p>
+                <p className="mt-1 text-sm text-black/70">
+                  <span className="font-semibold">Facebook:</span>{' '}
+                  <a
+                    href="https://www.facebook.com/profile.php?id=61551489070192&sk"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#0F766E] hover:underline"
+                  >
+                    Visit Page
+                  </a>
+                </p>
+                <p className="mt-1 text-sm text-black/70">
                   <span className="font-semibold">Business Hours:</span> Sun–Fri, 9:00 AM – 6:00 PM
                 </p>
                 <a
-                  href="https://www.google.com/maps/dir/?api=1&destination=Dillibazaar%2C+Kathmandu%2C+Nepal"
+                  href="https://www.google.com/maps/dir/27.7116299,85.3762919/J.S.+Traders,+Kathmandu+44600/@27.7078579,85.3103034,13z/data=!3m1!4b1!4m10!4m9!1m1!4e1!1m5!1m1!1s0x39eb1940e4f926ff:0x2dddaf65fb2856a9!2m2!1d85.3259086!2d27.7023729!3e0?entry=ttu&g_ep=EgoyMDI2MDMxNy4wIKXMDSoASAFQAw%3D%3D"
                   target="_blank"
                   rel="noreferrer"
                   className="mt-4 inline-flex h-11 min-h-[44px] items-center rounded-xl bg-[#1A1A1A] px-4 text-sm font-semibold text-white"
@@ -140,7 +154,7 @@ const Contact: React.FC = () => {
               <div className="overflow-hidden rounded-3xl border border-black/10 bg-white shadow-sm">
                 <iframe
                   title="J.S Traders Location Map"
-                  src="https://www.google.com/maps?q=Dillibazaar,Kathmandu,Nepal&output=embed"
+                  src="https://www.google.com/maps?q=J.S.+Traders,+Kathmandu+44600&output=embed"
                   className="h-[360px] w-full"
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"

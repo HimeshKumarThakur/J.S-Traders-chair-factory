@@ -16,7 +16,7 @@ type SubCategory = {
   basePrice: number;
 };
 
-const WHATSAPP_NUMBER = '9779802357901';
+const WHATSAPP_NUMBER = '9779861829728';
 
 const chairPhotos = [
   'https://images.unsplash.com/photo-1598298881114-e3c873dc50c7?w=900&h=700&fit=crop',
