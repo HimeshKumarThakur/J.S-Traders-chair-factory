@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 
 const Header: React.FC = () => {
@@ -18,8 +19,11 @@ const Header: React.FC = () => {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-black/10 bg-white/15 backdrop-blur-xl">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <div className="text-xl font-[700] tracking-tight text-[#1A1A1A] sm:text-2xl">
-          <Link href="/">J.S Traders</Link>
+        <div>
+          <Link href="/" className="inline-flex items-center gap-3">
+            <Image src="/images/js-traders-logo.svg" alt="J.S Traders" width={42} height={42} priority className="h-10 w-10" />
+            <span className="text-xl font-[700] tracking-tight text-[#1A1A1A] sm:text-2xl">J.S Traders</span>
+          </Link>
         </div>
 
         <nav className="hidden items-center gap-8 md:flex">

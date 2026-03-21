@@ -4,27 +4,60 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { fetchAdminData, getProductOverrideMapFromData } from '../lib/adminProducts';
-import { getTopPickProducts } from '../lib/siteProducts';
+import { getAllWebsiteEditableItems, getTopPickProducts } from '../lib/siteProducts';
 
 const Hero: React.FC = () => {
   const featuredProduct = getTopPickProducts()[0];
   const [featuredImage, setFeaturedImage] = useState(featuredProduct.imagePrimary);
+  const [galleryImages, setGalleryImages] = useState<string[]>([featuredProduct.imagePrimary]);
+  const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
+
+  const defaultGalleryImages = useMemo(
+    () => Array.from(new Set(getAllWebsiteEditableItems().map((item) => item.image))).filter(Boolean),
+    [],
+  );
 
   useEffect(() => {
     const loadFeatured = async () => {
       try {
         const data = await fetchAdminData();
-        const override = getProductOverrideMapFromData(data)[featuredProduct.id];
-        setFeaturedImage(override?.image ?? featuredProduct.imagePrimary);
+        const overrides = getProductOverrideMapFromData(data);
+        const override = overrides[featuredProduct.id];
+        const resolvedFeaturedImage = override?.image ?? featuredProduct.imagePrimary;
+        const resolvedGallery = Array.from(
+          new Set(
+            getAllWebsiteEditableItems().map((item) => overrides[item.id]?.image ?? item.image),
+          ),
+        ).filter(Boolean);
+
+        setFeaturedImage(resolvedFeaturedImage);
+        setGalleryImages(resolvedGallery.length > 0 ? resolvedGallery : defaultGalleryImages);
       } catch {
         setFeaturedImage(featuredProduct.imagePrimary);
+        setGalleryImages(defaultGalleryImages.length > 0 ? defaultGalleryImages : [featuredProduct.imagePrimary]);
       }
     };
 
     void loadFeatured();
-  }, [featuredProduct.id, featuredProduct.imagePrimary]);
+  }, [defaultGalleryImages, featuredProduct.id, featuredProduct.imagePrimary]);
+
+  useEffect(() => {
+    setActiveGalleryIndex(0);
+  }, [galleryImages.length]);
+
+  useEffect(() => {
+    if (galleryImages.length === 0) return;
+
+    const timer = window.setInterval(() => {
+      setActiveGalleryIndex((current) => (current + 1) % galleryImages.length);
+    }, 300);
+
+    return () => window.clearInterval(timer);
+  }, [galleryImages]);
+
+  const rotatingImage = galleryImages[activeGalleryIndex] ?? featuredImage;
 
   return (
     <section className="relative overflow-hidden bg-[#F5F5F7]">
@@ -89,7 +122,7 @@ const Hero: React.FC = () => {
               transition={{ type: 'spring', stiffness: 220, damping: 22 }}
             >
               <Image
-                src={featuredImage}
+                src={rotatingImage}
                 alt="Luxury ergonomic executive chair"
                 width={1200}
                 height={1200}

@@ -501,6 +501,13 @@ const AdminPage = () => {
                                     const data = await removeProductOverride(item.id);
                                     setProducts(getProductsFromData(data));
                                     setOverrideMap(getProductOverrideMapFromData(data));
+                                    if (editingWebsiteId === item.id) {
+                                      setEditingWebsiteId(null);
+                                      setEditingWebsiteTitle('');
+                                      setEditingWebsitePrice('');
+                                      setEditingWebsiteImageUrl('');
+                                      setEditingWebsiteImageUploadData('');
+                                    }
                                     if (typeof window !== 'undefined') {
                                       window.dispatchEvent(new Event('js-traders-data-updated'));
                                     }
@@ -515,106 +522,108 @@ const AdminPage = () => {
                               </button>
                             )}
                           </div>
+
+                          {editingWebsiteId === item.id && (
+                            <form onSubmit={saveWebsiteOverride} className="mt-4 space-y-4 rounded-xl border border-black/10 bg-white p-3">
+                              <h3 className="text-sm font-[700] text-[#1A1A1A]">Edit Website Product</h3>
+
+                              <label className="block">
+                                <span className="mb-2 block text-sm font-semibold text-[#1A1A1A]">Product Name</span>
+                                <input
+                                  type="text"
+                                  value={editingWebsiteTitle}
+                                  onChange={(e) => setEditingWebsiteTitle(e.target.value)}
+                                  className="h-11 min-h-[44px] w-full rounded-xl border border-black/15 px-3"
+                                  required
+                                />
+                              </label>
+
+                              <label className="block">
+                                <span className="mb-2 block text-sm font-semibold text-[#1A1A1A]">Image URL</span>
+                                <input
+                                  type="url"
+                                  value={editingWebsiteImageUrl}
+                                  onChange={(e) => setEditingWebsiteImageUrl(e.target.value)}
+                                  className="h-11 min-h-[44px] w-full rounded-xl border border-black/15 px-3"
+                                />
+                              </label>
+
+                              <label className="block">
+                                <span className="mb-2 block text-sm font-semibold text-[#1A1A1A]">Or Upload From Device</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="block w-full text-sm"
+                                  onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    try {
+                                      if (file.size > 8 * 1024 * 1024) {
+                                        setError('Image is too large. Please choose an image below 8MB.');
+                                        return;
+                                      }
+                                      const source = await readFileAsDataUrl(file);
+                                      const data = await compressImageDataUrl(source);
+                                      setEditingWebsiteImageUploadData(data);
+                                      setError('');
+                                    } catch {
+                                      setError('Could not read uploaded image.');
+                                    }
+                                  }}
+                                />
+                              </label>
+
+                              {(editingWebsiteImageUploadData || editingWebsiteImageUrl) && (
+                                <div className="overflow-hidden rounded-xl border border-black/10 bg-[#F5F5F7] p-2">
+                                  <img
+                                    src={editingWebsiteImageUploadData || editingWebsiteImageUrl}
+                                    alt="Website product preview"
+                                    className="h-40 w-full rounded-lg object-cover"
+                                  />
+                                </div>
+                              )}
+
+                              <label className="block">
+                                <span className="mb-2 block text-sm font-semibold text-[#1A1A1A]">Price (NPR)</span>
+                                <input
+                                  type="number"
+                                  value={editingWebsitePrice}
+                                  onChange={(e) => setEditingWebsitePrice(e.target.value)}
+                                  className="h-11 min-h-[44px] w-full rounded-xl border border-black/15 px-3"
+                                  min="1"
+                                  step="1"
+                                  required
+                                />
+                              </label>
+
+                              <div className="flex flex-wrap gap-2">
+                                <button
+                                  type="submit"
+                                  className="inline-flex h-10 min-h-[40px] items-center rounded-lg bg-[#0F766E] px-4 text-xs font-semibold text-white"
+                                >
+                                  Save Website Edit
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingWebsiteId(null);
+                                    setEditingWebsiteTitle('');
+                                    setEditingWebsitePrice('');
+                                    setEditingWebsiteImageUrl('');
+                                    setEditingWebsiteImageUploadData('');
+                                    setError('');
+                                  }}
+                                  className="inline-flex h-10 min-h-[40px] items-center rounded-lg border border-black/15 px-4 text-xs font-semibold text-[#1A1A1A]"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </form>
+                          )}
                         </div>
                       </article>
                     ))}
                   </div>
-
-                  {editingWebsiteId && (
-                    <form onSubmit={saveWebsiteOverride} className="mt-6 space-y-4 rounded-2xl border border-black/10 bg-[#F5F5F7] p-4 sm:p-5">
-                      <h3 className="text-base font-[700] text-[#1A1A1A]">Edit Website Product</h3>
-
-                      <label className="block">
-                        <span className="mb-2 block text-sm font-semibold text-[#1A1A1A]">Product Name</span>
-                        <input
-                          type="text"
-                          value={editingWebsiteTitle}
-                          onChange={(e) => setEditingWebsiteTitle(e.target.value)}
-                          className="h-11 min-h-[44px] w-full rounded-xl border border-black/15 px-3"
-                          required
-                        />
-                      </label>
-
-                      <label className="block">
-                        <span className="mb-2 block text-sm font-semibold text-[#1A1A1A]">Image URL</span>
-                        <input
-                          type="url"
-                          value={editingWebsiteImageUrl}
-                          onChange={(e) => setEditingWebsiteImageUrl(e.target.value)}
-                          className="h-11 min-h-[44px] w-full rounded-xl border border-black/15 px-3"
-                        />
-                      </label>
-
-                      <label className="block">
-                        <span className="mb-2 block text-sm font-semibold text-[#1A1A1A]">Or Upload From Device</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="block w-full text-sm"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (!file) return;
-                            try {
-                              if (file.size > 8 * 1024 * 1024) {
-                                setError('Image is too large. Please choose an image below 8MB.');
-                                return;
-                              }
-                              const source = await readFileAsDataUrl(file);
-                              const data = await compressImageDataUrl(source);
-                              setEditingWebsiteImageUploadData(data);
-                              setError('');
-                            } catch {
-                              setError('Could not read uploaded image.');
-                            }
-                          }}
-                        />
-                      </label>
-
-                      {(editingWebsiteImageUploadData || editingWebsiteImageUrl) && (
-                        <div className="overflow-hidden rounded-xl border border-black/10 bg-white p-2">
-                          <img
-                            src={editingWebsiteImageUploadData || editingWebsiteImageUrl}
-                            alt="Website product preview"
-                            className="h-40 w-full rounded-lg object-cover"
-                          />
-                        </div>
-                      )}
-
-                      <label className="block">
-                        <span className="mb-2 block text-sm font-semibold text-[#1A1A1A]">Price (NPR)</span>
-                        <input
-                          type="number"
-                          value={editingWebsitePrice}
-                          onChange={(e) => setEditingWebsitePrice(e.target.value)}
-                          className="h-11 min-h-[44px] w-full rounded-xl border border-black/15 px-3"
-                          min="1"
-                          step="1"
-                          required
-                        />
-                      </label>
-
-                      <button
-                        type="submit"
-                        className="inline-flex h-11 min-h-[44px] items-center rounded-xl bg-[#0F766E] px-5 text-sm font-semibold text-white"
-                      >
-                        Save Website Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingWebsiteId(null);
-                          setEditingWebsiteTitle('');
-                          setEditingWebsitePrice('');
-                          setEditingWebsiteImageUrl('');
-                          setEditingWebsiteImageUploadData('');
-                          setError('');
-                        }}
-                        className="ml-3 inline-flex h-11 min-h-[44px] items-center rounded-xl border border-black/15 px-5 text-sm font-semibold text-[#1A1A1A]"
-                      >
-                        Cancel
-                      </button>
-                    </form>
-                  )}
                 </div>
               </div>
             )}

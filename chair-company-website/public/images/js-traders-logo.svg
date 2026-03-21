@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220" role="img" aria-labelledby="logoTitle logoDesc">
+  <title id="logoTitle">J.S Traders logo</title>
+  <desc id="logoDesc">Blue shield logo with JS monogram and Traders ribbon</desc>
+  <defs>
+    <linearGradient id="shieldGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#12A3F2" />
+      <stop offset="100%" stop-color="#005A9E" />
+    </linearGradient>
+    <linearGradient id="ribbonGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#002A63" />
+      <stop offset="100%" stop-color="#0B4A8A" />
+    </linearGradient>
+  </defs>
+
+  <path d="M110 12 181 39 173 128 110 186 47 128 39 39Z" fill="url(#shieldGrad)" />
+  <path d="M110 22 170 45 163 123 110 173 57 123 50 45Z" fill="#042248" opacity="0.28" />
+  <path d="M59 43h102l-7 75-44 40-44-40z" fill="#072D5D" />
+
+  <path d="M82 67h29v20h-14v35c0 12-8 20-21 20h-8v-18h6c4 0 8-2 8-8z" fill="#12A3F2" />
+  <path d="M144 68v18h-20c-3 0-6 2-6 5s3 5 6 5h10c16 0 25 10 25 23 0 14-11 23-27 23h-22v-18h21c5 0 8-2 8-5 0-4-3-6-8-6h-9c-16 0-25-10-25-22 0-14 11-23 27-23z" fill="#12A3F2" />
+
+  <path d="M35 149h150c6 0 10 5 8 10l-6 27c-1 5-6 8-11 8H44c-5 0-10-3-11-8l-6-27c-2-5 2-10 8-10Z" fill="url(#ribbonGrad)" />
+  <text x="110" y="176" text-anchor="middle" fill="#DCE7F8" font-family="Montserrat, Arial, sans-serif" font-size="21" letter-spacing="4">
+    TRADERS
+  </text>
+</svg>

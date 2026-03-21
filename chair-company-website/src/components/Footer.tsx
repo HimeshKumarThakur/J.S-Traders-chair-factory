@@ -16,7 +16,12 @@ const Footer: React.FC = () => {
             J.S. Traders, Kathmandu
           </a>
           <a href="https://wa.me/9779861829728" target="_blank" rel="noreferrer" className="mt-1 block text-sm text-white/80 hover:text-white">
-            WhatsApp: +977 986-1829728
+            <span className="inline-flex items-center gap-2">
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-current">
+                <path d="M20.52 3.48A11.83 11.83 0 0 0 12.05 0C5.42 0 .03 5.39.03 12.02c0 2.12.55 4.18 1.6 6.01L0 24l6.14-1.61a11.96 11.96 0 0 0 5.88 1.5h.01c6.63 0 12.02-5.39 12.02-12.02 0-3.21-1.25-6.22-3.53-8.39ZM12.03 21.9h-.01a9.95 9.95 0 0 1-5.07-1.38l-.36-.21-3.64.95.97-3.55-.23-.37a9.9 9.9 0 0 1-1.53-5.32C2.16 6.45 6.48 2.13 12.03 2.13c2.65 0 5.14 1.03 7.01 2.9a9.83 9.83 0 0 1 2.9 6.99c0 5.55-4.32 9.88-9.91 9.88Zm5.44-7.41c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.66.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.65.07-.3-.15-1.28-.47-2.44-1.49-.9-.8-1.5-1.8-1.68-2.1-.17-.3-.02-.47.13-.62.14-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.66-1.6-.9-2.19-.24-.58-.49-.5-.66-.5h-.57c-.2 0-.52.08-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.22 3.08.15.2 2.1 3.2 5.1 4.49.71.31 1.26.49 1.69.63.71.23 1.35.2 1.86.12.57-.08 1.75-.71 2-1.39.25-.69.25-1.27.17-1.39-.07-.12-.27-.2-.56-.34Z" />
+              </svg>
+              WhatsApp: +977 986-1829728
+            </span>
           </a>
           <a href="mailto:j.s.traders@gmail.com" className="mt-1 block text-sm text-white/80 hover:text-white">
             Email: j.s.traders@gmail.com
@@ -27,7 +32,12 @@ const Footer: React.FC = () => {
             rel="noreferrer"
             className="mt-1 block text-sm text-white/80 hover:text-white"
           >
-            Facebook: J.S Traders
+            <span className="inline-flex items-center gap-2">
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-current">
+                <path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.85c0-2.5 1.49-3.88 3.77-3.88 1.09 0 2.23.19 2.23.19v2.46h-1.26c-1.25 0-1.64.77-1.64 1.56V12h2.79l-.45 2.89h-2.34v6.99A10 10 0 0 0 22 12Z" />
+              </svg>
+              Facebook: J.S Traders
+            </span>
           </a>
         </div>
         <div className="flex items-center justify-center gap-4 text-sm text-white/70 md:justify-end">
