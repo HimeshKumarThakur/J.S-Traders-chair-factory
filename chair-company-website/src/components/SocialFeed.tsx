@@ -1,12 +1,12 @@
 "use client";
 
-import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 import ProductPreviewModal from './ProductPreviewModal';
 import { fetchAdminData, getProductOverrideMapFromData } from '../lib/adminProducts';
 import { getAllWebsiteEditableItems } from '../lib/siteProducts';
 
 const WHATSAPP_NUMBER = '9779861829728';
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=900&h=700&fit=crop';
 
 type GalleryPost = {
   id: string;
@@ -105,7 +105,16 @@ export default function SocialFeed() {
                 onClick={() => setSelectedPost(post)}
                 aria-label={`Preview ${post.title}`}
               >
-                <Image src={post.image} alt={post.title} fill className="object-cover transition duration-300 group-hover:scale-105" sizes="(max-width: 1024px) 33vw, 16vw" loading="lazy" />
+                <img
+                  src={post.image}
+                  alt={post.title}
+                  className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                  loading="lazy"
+                  onError={(event) => {
+                    const target = event.currentTarget;
+                    if (target.src !== FALLBACK_IMAGE) target.src = FALLBACK_IMAGE;
+                  }}
+                />
               </button>
 
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent opacity-0 transition duration-200 group-hover:opacity-100">
