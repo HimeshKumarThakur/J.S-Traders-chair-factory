@@ -82,12 +82,7 @@ const ProductsPage = () => {
       <section className="bg-[#F5F5F7] py-12 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-3xl border border-black/10 bg-white p-7 shadow-sm sm:p-10">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-xs uppercase tracking-[0.2em] text-[#0F766E]">J.S Traders Product Collections</p>
-              <a href="/admin" className="text-sm font-semibold text-[#0F766E] hover:underline">
-                Admin Login
-              </a>
-            </div>
+            <p className="text-xs uppercase tracking-[0.2em] text-[#0F766E]">J.S Traders Product Collections</p>
             <h1 className="mt-3 text-3xl font-[700] tracking-tight text-[#1A1A1A] sm:text-4xl">Browse by Category</h1>
 
             <div className="mt-6 grid grid-cols-1 gap-2 border-b border-black/10 pb-3 sm:grid-cols-3">
@@ -171,14 +166,9 @@ const ProductsPage = () => {
 
           {adminProducts.length > 0 && (
             <div className="mt-8 rounded-3xl border border-black/10 bg-white p-6 shadow-sm sm:p-8">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-2xl font-[700] tracking-tight text-[#1A1A1A] sm:text-3xl">Admin Added Products</h2>
-                  <p className="mt-2 text-sm text-black/65">Latest products added from the admin panel.</p>
-                </div>
-                <a href="/admin" className="text-sm font-semibold text-[#0F766E] hover:underline">
-                  Open Admin Panel
-                </a>
+              <div>
+                <h2 className="text-2xl font-[700] tracking-tight text-[#1A1A1A] sm:text-3xl">Latest Products</h2>
+                <p className="mt-2 text-sm text-black/65">Recently added products.</p>
               </div>
 
               <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
