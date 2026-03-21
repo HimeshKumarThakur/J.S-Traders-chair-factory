@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import { fetchAdminData, getProductOverrideMapFromData } from '../lib/adminProducts';
 import { getAllWebsiteEditableItems, getTopPickProducts } from '../lib/siteProducts';
@@ -41,6 +41,20 @@ const Hero: React.FC = () => {
     };
 
     void loadFeatured();
+
+    const reload = () => {
+      void loadFeatured();
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('js-traders-data-updated', reload);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('js-traders-data-updated', reload);
+      }
+    };
   }, [defaultGalleryImages, featuredProduct.id, featuredProduct.imagePrimary]);
 
   useEffect(() => {
@@ -52,7 +66,7 @@ const Hero: React.FC = () => {
 
     const timer = window.setInterval(() => {
       setActiveGalleryIndex((current) => (current + 1) % galleryImages.length);
-    }, 300);
+    }, 3200);
 
     return () => window.clearInterval(timer);
   }, [galleryImages]);
@@ -79,7 +93,7 @@ const Hero: React.FC = () => {
 
           <h1 className="text-4xl font-[700] leading-tight tracking-tight text-[#1A1A1A] sm:text-5xl lg:text-6xl">
             Ergonomics for
-            <span className="block text-[#0F766E] motion-safe:animate-[pulse_3s_ease-in-out_infinite]">the Elite</span>
+            <span className="block text-[#0F766E]">the Elite</span>
           </h1>
 
           <p className="mt-5 max-w-xl text-base font-[400] leading-relaxed text-black/70 sm:text-lg">
@@ -121,15 +135,25 @@ const Hero: React.FC = () => {
               whileHover={{ y: -6 }}
               transition={{ type: 'spring', stiffness: 220, damping: 22 }}
             >
-              <Image
-                src={rotatingImage}
-                alt="Luxury ergonomic executive chair"
-                width={1200}
-                height={1200}
-                priority
-                className="h-auto w-full rounded-2xl object-cover drop-shadow-[0_24px_40px_rgba(0,0,0,0.22)] transition duration-500 motion-safe:hover:scale-[1.02]"
-                sizes="(max-width: 1024px) 100vw, 50vw"
-              />
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={rotatingImage}
+                  initial={{ opacity: 0.35, scale: 1.015 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0.35, scale: 0.99 }}
+                  transition={{ duration: 0.9, ease: 'easeInOut' }}
+                >
+                  <Image
+                    src={rotatingImage}
+                    alt="Luxury ergonomic executive chair"
+                    width={1200}
+                    height={1200}
+                    priority
+                    className="h-auto w-full rounded-2xl object-cover drop-shadow-[0_24px_40px_rgba(0,0,0,0.22)] transition duration-500 motion-safe:hover:scale-[1.02]"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                  />
+                </motion.div>
+              </AnimatePresence>
             </motion.div>
           </Link>
         </motion.div>

@@ -74,16 +74,18 @@ const AdminPage = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [imageUploadData, setImageUploadData] = useState('');
   const [price, setPrice] = useState('');
+  const [soldOut, setSoldOut] = useState(false);
   const [editingCustomId, setEditingCustomId] = useState<string | null>(null);
   const [products, setProducts] = useState<AdminProduct[]>([]);
 
-  const [overrideMap, setOverrideMap] = useState<Record<string, { title: string; image: string; price: number }>>({});
+  const [overrideMap, setOverrideMap] = useState<Record<string, { title: string; image: string; price: number; soldOut: boolean }>>({});
   const [websiteSearch, setWebsiteSearch] = useState('');
   const [editingWebsiteId, setEditingWebsiteId] = useState<string | null>(null);
   const [editingWebsiteTitle, setEditingWebsiteTitle] = useState('');
   const [editingWebsitePrice, setEditingWebsitePrice] = useState('');
   const [editingWebsiteImageUrl, setEditingWebsiteImageUrl] = useState('');
   const [editingWebsiteImageUploadData, setEditingWebsiteImageUploadData] = useState('');
+  const [editingWebsiteSoldOut, setEditingWebsiteSoldOut] = useState(false);
 
   useEffect(() => {
     const syncData = async () => {
@@ -112,6 +114,7 @@ const AdminPage = () => {
           title: override?.title ?? item.title,
           image: override?.image ?? item.image,
           price: override?.price ?? item.price,
+          soldOut: override?.soldOut ?? false,
           hasOverride: Boolean(override),
         };
       }),
@@ -169,12 +172,14 @@ const AdminPage = () => {
           title: title.trim(),
           image: resolvedImage,
           price: parsedPrice,
+          soldOut,
         });
       } else {
         data = await addAdminProduct({
           title: title.trim(),
           image: resolvedImage,
           price: parsedPrice,
+          soldOut,
         });
       }
 
@@ -194,6 +199,7 @@ const AdminPage = () => {
     setImageUrl('');
     setImageUploadData('');
     setPrice('');
+    setSoldOut(false);
     setEditingCustomId(null);
     setError('');
     setSuccess(editingCustomId ? 'Custom product updated.' : 'Custom product saved.');
@@ -217,6 +223,7 @@ const AdminPage = () => {
         title: editingWebsiteTitle.trim(),
         image: resolvedImage,
         price: parsedPrice,
+        soldOut: editingWebsiteSoldOut,
       });
 
       setProducts(getProductsFromData(data));
@@ -236,6 +243,7 @@ const AdminPage = () => {
     setEditingWebsiteImageUrl('');
     setEditingWebsiteImageUploadData('');
     setEditingWebsitePrice('');
+    setEditingWebsiteSoldOut(false);
     setError('');
     setSuccess('Website product updated successfully.');
   };
@@ -376,6 +384,11 @@ const AdminPage = () => {
                     />
                   </label>
 
+                  <label className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-white px-3 py-2 text-sm font-semibold text-[#1A1A1A]">
+                    <input type="checkbox" checked={soldOut} onChange={(e) => setSoldOut(e.target.checked)} />
+                    Mark as Sold Out
+                  </label>
+
                   {error && <p className="text-sm font-medium text-rose-600">{error}</p>}
 
                   <button
@@ -393,6 +406,7 @@ const AdminPage = () => {
                         setImageUrl('');
                         setImageUploadData('');
                         setPrice('');
+                        setSoldOut(false);
                         setError('');
                       }}
                       className="ml-3 inline-flex h-11 min-h-[44px] items-center rounded-xl border border-black/15 px-5 text-sm font-semibold text-[#1A1A1A]"
@@ -417,6 +431,9 @@ const AdminPage = () => {
                           <div className="pt-3">
                             <h3 className="text-sm font-[700] text-[#1A1A1A]">{item.title}</h3>
                             <p className="mt-1 text-sm font-semibold text-[#AD7A00]">{formatNPR(item.price)}</p>
+                            {item.soldOut && (
+                              <p className="mt-1 inline-flex rounded-full bg-rose-100 px-2 py-1 text-xs font-semibold text-rose-700">Sold Out</p>
+                            )}
                             <button
                               type="button"
                               onClick={() => {
@@ -425,6 +442,7 @@ const AdminPage = () => {
                                 setImageUrl(item.image);
                                 setImageUploadData('');
                                 setPrice(String(item.price));
+                                setSoldOut(Boolean(item.soldOut));
                                 setError('');
                               }}
                               className="mt-3 mr-2 inline-flex h-10 min-h-[40px] items-center rounded-lg border border-black/15 bg-white px-3 text-xs font-semibold text-[#1A1A1A]"
@@ -477,6 +495,9 @@ const AdminPage = () => {
                           <p className="text-xs uppercase tracking-wide text-black/45">{item.section}</p>
                           <h3 className="mt-1 text-sm font-[700] text-[#1A1A1A]">{item.title}</h3>
                           <p className="mt-1 text-sm font-semibold text-[#AD7A00]">{formatNPR(item.price)}</p>
+                          {item.soldOut && (
+                            <p className="mt-1 inline-flex rounded-full bg-rose-100 px-2 py-1 text-xs font-semibold text-rose-700">Sold Out</p>
+                          )}
                           <div className="mt-3 flex flex-wrap gap-2">
                             <button
                               type="button"
@@ -486,6 +507,7 @@ const AdminPage = () => {
                                 setEditingWebsitePrice(String(item.price));
                                 setEditingWebsiteImageUrl(item.image);
                                 setEditingWebsiteImageUploadData('');
+                                setEditingWebsiteSoldOut(Boolean(item.soldOut));
                                 setError('');
                                 setSuccess('');
                               }}
@@ -507,6 +529,7 @@ const AdminPage = () => {
                                       setEditingWebsitePrice('');
                                       setEditingWebsiteImageUrl('');
                                       setEditingWebsiteImageUploadData('');
+                                      setEditingWebsiteSoldOut(false);
                                     }
                                     if (typeof window !== 'undefined') {
                                       window.dispatchEvent(new Event('js-traders-data-updated'));
@@ -596,6 +619,15 @@ const AdminPage = () => {
                                 />
                               </label>
 
+                              <label className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-[#F5F5F7] px-3 py-2 text-sm font-semibold text-[#1A1A1A]">
+                                <input
+                                  type="checkbox"
+                                  checked={editingWebsiteSoldOut}
+                                  onChange={(e) => setEditingWebsiteSoldOut(e.target.checked)}
+                                />
+                                Mark as Sold Out
+                              </label>
+
                               <div className="flex flex-wrap gap-2">
                                 <button
                                   type="submit"
@@ -611,6 +643,7 @@ const AdminPage = () => {
                                     setEditingWebsitePrice('');
                                     setEditingWebsiteImageUrl('');
                                     setEditingWebsiteImageUploadData('');
+                                    setEditingWebsiteSoldOut(false);
                                     setError('');
                                   }}
                                   className="inline-flex h-10 min-h-[40px] items-center rounded-lg border border-black/15 px-4 text-xs font-semibold text-[#1A1A1A]"

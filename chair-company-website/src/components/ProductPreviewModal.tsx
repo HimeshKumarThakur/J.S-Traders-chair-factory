@@ -7,6 +7,7 @@ type ProductPreviewModalProps = {
   title: string;
   image: string;
   priceLabel: string;
+  soldOut?: boolean;
   onClose: () => void;
   buyUrl: string;
 };
@@ -16,6 +17,7 @@ const ProductPreviewModal: React.FC<ProductPreviewModalProps> = ({
   title,
   image,
   priceLabel,
+  soldOut = false,
   onClose,
   buyUrl,
 }) => {
@@ -44,14 +46,20 @@ const ProductPreviewModal: React.FC<ProductPreviewModalProps> = ({
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <p className="text-lg font-semibold text-[#AD7A00]">{priceLabel}</p>
-            <a
-              href={buyUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-11 min-h-[44px] items-center rounded-xl bg-[#0F766E] px-5 text-sm font-semibold text-white"
-            >
-              Buy Now
-            </a>
+            {soldOut ? (
+              <span className="inline-flex h-11 min-h-[44px] items-center rounded-xl bg-rose-100 px-5 text-sm font-semibold text-rose-700">
+                Sold Out
+              </span>
+            ) : (
+              <a
+                href={buyUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-11 min-h-[44px] items-center rounded-xl bg-[#0F766E] px-5 text-sm font-semibold text-white"
+              >
+                Buy Now
+              </a>
+            )}
           </div>
         </div>
       </div>

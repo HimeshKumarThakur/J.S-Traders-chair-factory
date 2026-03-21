@@ -10,6 +10,7 @@ type Product = {
   id: string;
   name: string;
   price: number;
+  soldOut?: boolean;
   rating: number;
   reviews: number;
   stock: number;
@@ -31,7 +32,7 @@ const formatNPR = (value: number) =>
 const WHATSAPP_NUMBER = '9779861829728';
 
 export default function ProductGridSection() {
-  const [overrideMap, setOverrideMap] = useState<Record<string, { title: string; image: string; price: number }>>({});
+  const [overrideMap, setOverrideMap] = useState<Record<string, { title: string; image: string; price: number; soldOut: boolean }>>({});
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [maxPrice, setMaxPrice] = useState(55000);
@@ -70,6 +71,7 @@ export default function ProductGridSection() {
           name: override?.title ?? product.name,
           price: override?.price ?? product.price,
           imagePrimary: override?.image ?? product.imagePrimary,
+          soldOut: override?.soldOut ?? false,
         };
       }),
     [overrideMap],
@@ -133,18 +135,24 @@ export default function ProductGridSection() {
                 />
 
                 <div className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center opacity-0 transition group-hover:opacity-100">
-                  <motion.a
-                    href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-                      `Hello, I want to buy ${product.name}. Please share details.`,
-                    )}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="pointer-events-auto inline-flex h-11 min-h-[44px] items-center rounded-xl bg-[#0F766E] px-4 text-sm font-semibold text-white shadow-lg hover:brightness-110"
-                    aria-label={`Quick buy ${product.name}`}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Quick Buy
-                  </motion.a>
+                  {product.soldOut ? (
+                    <span className="pointer-events-auto inline-flex h-11 min-h-[44px] items-center rounded-xl bg-rose-100 px-4 text-sm font-semibold text-rose-700 shadow-lg">
+                      Sold Out
+                    </span>
+                  ) : (
+                    <motion.a
+                      href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+                        `Hello, I want to buy ${product.name}. Please share details.`,
+                      )}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="pointer-events-auto inline-flex h-11 min-h-[44px] items-center rounded-xl bg-[#0F766E] px-4 text-sm font-semibold text-white shadow-lg hover:brightness-110"
+                      aria-label={`Quick buy ${product.name}`}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      Quick Buy
+                    </motion.a>
+                  )}
                 </div>
               </div>
 
@@ -160,9 +168,13 @@ export default function ProductGridSection() {
 
                 <div className="mt-2 flex items-center justify-between">
                   <p className="text-lg font-[700] text-[#1A1A1A]">{formatNPR(product.price)}</p>
-                  <p className={`text-xs font-medium ${product.stock <= 3 ? 'text-rose-600' : 'text-black/60'}`}>
-                    {product.stock <= 3 ? `Only ${product.stock} left in Kathmandu` : `${product.stock} in stock`}
-                  </p>
+                  {product.soldOut ? (
+                    <p className="text-xs font-semibold text-rose-700">Sold Out</p>
+                  ) : (
+                    <p className={`text-xs font-medium ${product.stock <= 3 ? 'text-rose-600' : 'text-black/60'}`}>
+                      {product.stock <= 3 ? `Only ${product.stock} left in Kathmandu` : `${product.stock} in stock`}
+                    </p>
+                  )}
                 </div>
               </div>
             </motion.article>
@@ -290,6 +302,7 @@ export default function ProductGridSection() {
             title={filteredProducts.find((item) => item.id === selectedProductId)?.name ?? 'Product'}
             image={filteredProducts.find((item) => item.id === selectedProductId)?.imagePrimary ?? ''}
             priceLabel={formatNPR(filteredProducts.find((item) => item.id === selectedProductId)?.price ?? 0)}
+            soldOut={Boolean(filteredProducts.find((item) => item.id === selectedProductId)?.soldOut)}
             onClose={() => setSelectedProductId(null)}
             buyUrl={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
               `Hello, I want to buy ${filteredProducts.find((item) => item.id === selectedProductId)?.name ?? 'this product'}. Please share details.`,

@@ -13,6 +13,7 @@ type GalleryPost = {
   title: string;
   image: string;
   price: number;
+  soldOut: boolean;
 };
 
 const formatNPR = (value: number) =>
@@ -40,6 +41,7 @@ export default function SocialFeed() {
           title: overrides[item.id]?.title ?? item.title,
           image: overrides[item.id]?.image ?? item.image,
           price: overrides[item.id]?.price ?? item.price,
+          soldOut: Boolean(overrides[item.id]?.soldOut),
         }));
 
         setPosts(items);
@@ -50,6 +52,7 @@ export default function SocialFeed() {
             title: item.title,
             image: item.image,
             price: item.price,
+            soldOut: false,
           })),
         );
       }
@@ -76,7 +79,7 @@ export default function SocialFeed() {
     if (posts.length === 0) return;
     const timer = window.setInterval(() => {
       setCursor((current) => (current + 1) % posts.length);
-    }, 500);
+    }, 3000);
 
     return () => window.clearInterval(timer);
   }, [posts]);
@@ -95,7 +98,7 @@ export default function SocialFeed() {
 
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {visiblePosts.map((post, i) => (
-            <article key={`${post.id}-${i}`} className="group relative aspect-square overflow-hidden rounded-xl border border-black/10 bg-white">
+            <article key={`${post.id}-${i}`} className="group relative aspect-square overflow-hidden rounded-xl border border-black/10 bg-white transition duration-700">
               <button
                 type="button"
                 className="h-full w-full"
@@ -113,10 +116,14 @@ export default function SocialFeed() {
                       href={getBuyUrl(post.title)}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex h-8 items-center rounded-md bg-[#0F766E] px-2 text-[11px] font-semibold text-white"
-                      onClick={(event) => event.stopPropagation()}
+                      className={`inline-flex h-8 items-center rounded-md px-2 text-[11px] font-semibold text-white ${post.soldOut ? 'cursor-not-allowed bg-rose-400' : 'bg-[#0F766E]'}`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        if (post.soldOut) event.preventDefault();
+                      }}
+                      aria-disabled={post.soldOut}
                     >
-                      Buy Now
+                      {post.soldOut ? 'Sold Out' : 'Buy Now'}
                     </a>
                     <button
                       type="button"
@@ -138,6 +145,7 @@ export default function SocialFeed() {
             title={selectedPost.title}
             image={selectedPost.image}
             priceLabel={formatNPR(selectedPost.price)}
+            soldOut={selectedPost.soldOut}
             onClose={() => setSelectedPost(null)}
             buyUrl={getBuyUrl(selectedPost.title)}
           />

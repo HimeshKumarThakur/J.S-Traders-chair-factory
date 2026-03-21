@@ -9,7 +9,7 @@ const formatNPR = (value: number) => `NPR ${value.toLocaleString('en-NP')}`;
 
 export default function BestSellers() {
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [overrideMap, setOverrideMap] = useState<Record<string, { title: string; image: string; price: number }>>({});
+  const [overrideMap, setOverrideMap] = useState<Record<string, { title: string; image: string; price: number; soldOut: boolean }>>({});
 
   useEffect(() => {
     const syncOverrides = async () => {
@@ -46,6 +46,7 @@ export default function BestSellers() {
       price: resolvedPrice,
       showRuleBasedOldPrice,
       oldPrice,
+      soldOut: override?.soldOut ?? false,
     };
   });
 
@@ -82,6 +83,11 @@ export default function BestSellers() {
                 <span className="absolute left-2 top-2 rounded-full bg-[#0F766E] px-2 py-1 text-xs font-semibold text-white">
                   {item.discount}
                 </span>
+                {item.soldOut && (
+                  <span className="absolute right-2 top-2 rounded-full bg-rose-100 px-2 py-1 text-xs font-semibold text-rose-700">
+                    Sold Out
+                  </span>
+                )}
               </div>
               <div className="pt-3">
                 <p className="text-xs uppercase tracking-wide text-black/45">{item.category}</p>
@@ -103,6 +109,7 @@ export default function BestSellers() {
             title={selectedItem.name}
             image={selectedItem.image}
             priceLabel={formatNPR(selectedItem.price)}
+            soldOut={selectedItem.soldOut}
             onClose={() => setSelectedItemId(null)}
             buyUrl={`https://wa.me/9779861829728?text=${encodeURIComponent(
               `Hello, I want to buy ${selectedItem.name}. Please share details.`,

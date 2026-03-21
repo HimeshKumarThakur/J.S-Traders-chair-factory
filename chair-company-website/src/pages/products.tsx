@@ -21,6 +21,7 @@ type ProductItem = {
   oldPrice: number;
   price: number;
   basePrice: number;
+  soldOut: boolean;
   hasOverride: boolean;
 };
 
@@ -34,8 +35,8 @@ const ProductsPage = () => {
   const [activeCategory, setActiveCategory] = useState<MainCategory>('chair');
   const [activeSubCategory, setActiveSubCategory] = useState(categoryGroups[0].subcategories[0].name);
   const [adminProducts, setAdminProducts] = useState<AdminProduct[]>([]);
-  const [overrideMap, setOverrideMap] = useState<Record<string, { title: string; image: string; price: number }>>({});
-  const [selectedPreview, setSelectedPreview] = useState<{ title: string; image: string; price: number } | null>(null);
+  const [overrideMap, setOverrideMap] = useState<Record<string, { title: string; image: string; price: number; soldOut: boolean }>>({});
+  const [selectedPreview, setSelectedPreview] = useState<{ title: string; image: string; price: number; soldOut: boolean } | null>(null);
 
   useEffect(() => {
     const syncData = async () => {
@@ -83,6 +84,7 @@ const ProductsPage = () => {
           image: override?.image ?? item.image,
           price: override?.price ?? item.price,
           basePrice: item.price,
+          soldOut: override?.soldOut ?? false,
           hasOverride: Boolean(override),
         };
       }),
@@ -102,6 +104,7 @@ const ProductsPage = () => {
           title: override?.title ?? topPick.name,
           image: override?.image ?? topPick.imagePrimary,
           price: override?.price ?? topPick.price,
+          soldOut: override?.soldOut ?? false,
         }
       : null;
 
@@ -109,12 +112,12 @@ const ProductsPage = () => {
     const fromAdmin = adminProducts.find((item) => item.id === queryPreviewId);
 
     if (fromActive) {
-      setSelectedPreview({ title: fromActive.title, image: fromActive.image, price: fromActive.price });
+      setSelectedPreview({ title: fromActive.title, image: fromActive.image, price: fromActive.price, soldOut: fromActive.soldOut });
       return;
     }
 
     if (fromAdmin) {
-      setSelectedPreview({ title: fromAdmin.title, image: fromAdmin.image, price: fromAdmin.price });
+      setSelectedPreview({ title: fromAdmin.title, image: fromAdmin.image, price: fromAdmin.price, soldOut: fromAdmin.soldOut });
       return;
     }
 
@@ -186,7 +189,7 @@ const ProductsPage = () => {
                     <button
                       type="button"
                       className="block h-full w-full"
-                      onClick={() => setSelectedPreview({ title: item.title, image: item.image, price: item.price })}
+                      onClick={() => setSelectedPreview({ title: item.title, image: item.image, price: item.price, soldOut: item.soldOut })}
                       aria-label={`Preview ${item.title}`}
                     >
                       <img
@@ -216,9 +219,12 @@ const ProductsPage = () => {
                       )}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-3 inline-flex h-11 min-h-[44px] items-center rounded-xl bg-[#0F766E] px-4 text-sm font-semibold text-white"
+                      className={`mt-3 inline-flex h-11 min-h-[44px] items-center rounded-xl px-4 text-sm font-semibold text-white ${item.soldOut ? 'cursor-not-allowed bg-rose-400' : 'bg-[#0F766E]'}`}
+                      onClick={(event) => {
+                        if (item.soldOut) event.preventDefault();
+                      }}
                     >
-                      Buy Now
+                      {item.soldOut ? 'Sold Out' : 'Buy Now'}
                     </a>
                   </div>
                 </article>
@@ -240,7 +246,7 @@ const ProductsPage = () => {
                       <button
                         type="button"
                         className="block h-full w-full"
-                        onClick={() => setSelectedPreview({ title: item.title, image: item.image, price: item.price })}
+                        onClick={() => setSelectedPreview({ title: item.title, image: item.image, price: item.price, soldOut: item.soldOut })}
                         aria-label={`Preview ${item.title}`}
                       >
                         <img
@@ -259,15 +265,21 @@ const ProductsPage = () => {
                     <div className="pt-3">
                       <h3 className="text-sm font-[700] text-[#1A1A1A]">{item.title}</h3>
                       <p className="mt-1 text-sm font-[700] text-[#AD7A00]">NPR {item.price.toLocaleString('en-NP')}</p>
+                      {item.soldOut && (
+                        <p className="mt-1 inline-flex rounded-full bg-rose-100 px-2 py-1 text-xs font-semibold text-rose-700">Sold Out</p>
+                      )}
                       <a
                         href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
                           `Hello, I want to buy ${item.title}. Please share details.`,
                         )}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="mt-3 inline-flex h-11 min-h-[44px] items-center rounded-xl bg-[#0F766E] px-4 text-sm font-semibold text-white"
+                        className={`mt-3 inline-flex h-11 min-h-[44px] items-center rounded-xl px-4 text-sm font-semibold text-white ${item.soldOut ? 'cursor-not-allowed bg-rose-400' : 'bg-[#0F766E]'}`}
+                        onClick={(event) => {
+                          if (item.soldOut) event.preventDefault();
+                        }}
                       >
-                        Buy Now
+                        {item.soldOut ? 'Sold Out' : 'Buy Now'}
                       </a>
                     </div>
                   </article>
@@ -284,6 +296,7 @@ const ProductsPage = () => {
           title={selectedPreview.title}
           image={selectedPreview.image}
           priceLabel={formatNPR(selectedPreview.price)}
+          soldOut={selectedPreview.soldOut}
           onClose={() => setSelectedPreview(null)}
           buyUrl={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
             `Hello, I want to buy ${selectedPreview.title}. Please share details.`,

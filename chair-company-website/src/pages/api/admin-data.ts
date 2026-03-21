@@ -32,6 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         title: body.payload.title,
         image: body.payload.image,
         price: body.payload.price,
+        soldOut: Boolean(body.payload.soldOut),
         createdAt: new Date().toISOString(),
       };
 
@@ -49,6 +50,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               title: body.payload.title,
               image: body.payload.image,
               price: body.payload.price,
+              soldOut: Boolean(body.payload.soldOut),
             }
           : item,
       );
@@ -72,6 +74,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         title: body.payload.title,
         image: body.payload.image,
         price: body.payload.price,
+        soldOut: Boolean(body.payload.soldOut),
         updatedAt: new Date().toISOString(),
       };
 

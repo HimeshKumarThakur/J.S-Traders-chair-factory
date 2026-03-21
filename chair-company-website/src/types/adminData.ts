@@ -3,6 +3,7 @@ export type AdminProduct = {
   title: string;
   image: string;
   price: number;
+  soldOut: boolean;
   createdAt: string;
 };
 
@@ -11,6 +12,7 @@ export type ProductOverride = {
   title: string;
   image: string;
   price: number;
+  soldOut: boolean;
   updatedAt: string;
 };
 
