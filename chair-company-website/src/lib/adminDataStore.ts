@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import mysql from 'mysql2/promise';
+import { kv } from '@vercel/kv';
 import type { AdminData, AdminProduct, ProductOverride } from '../types/adminData';
 
 const ADMIN_DATA_MYSQL_KEY = 'js-traders-admin-data-v1';
@@ -10,18 +11,6 @@ const hasMysqlConfig = Boolean(
     (process.env.MYSQL_HOST && process.env.MYSQL_USER && process.env.MYSQL_PASSWORD && process.env.MYSQL_DATABASE),
 );
 const hasKvConfig = Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
-
-// Helper to safely get KV instance
-const getKvInstance = async () => {
-  try {
-    if (typeof window !== 'undefined') return null; // Don't use KV in browser
-    const module = await import('@vercel/kv');
-    return module.kv;
-  } catch (error) {
-    console.error('[AdminDataStore] Failed to load @vercel/kv:', error);
-    return null;
-  }
-};
 
 let mysqlPool: mysql.Pool | null = null;
 
@@ -169,17 +158,20 @@ export const readAdminDataStore = async (): Promise<AdminData> => {
   if (hasKvConfig) {
     try {
       console.log('[AdminDataStore] Attempting KV read from key:', ADMIN_DATA_KV_KEY);
-      const kvInstance = await getKvInstance();
-      if (!kvInstance) {
-        throw new Error('KV instance not available');
-      }
-      const value = await kvInstance.get<AdminData>(ADMIN_DATA_KV_KEY);
+      const value = await kv.get<AdminData>(ADMIN_DATA_KV_KEY);
       console.log('[AdminDataStore] KV read success, data exists:', !!value);
       return normalizeStore(value ?? emptyStore());
     } catch (error) {
       console.error('[AdminDataStore] KV read failed:', error);
-      // Fall through to file store fallback.
+      if (process.env.VERCEL) {
+        return emptyStore();
+      }
     }
+  }
+
+  if (process.env.VERCEL) {
+    console.error('[AdminDataStore] No persistent store available on Vercel.');
+    return emptyStore();
   }
 
   console.log('[AdminDataStore] Falling back to file store...');
@@ -209,17 +201,19 @@ export const writeAdminDataStore = async (data: AdminData) => {
   if (hasKvConfig) {
     try {
       console.log('[AdminDataStore] Writing to KV with key:', ADMIN_DATA_KV_KEY);
-      const kvInstance = await getKvInstance();
-      if (!kvInstance) {
-        throw new Error('KV instance not available');
-      }
-      await kvInstance.set(ADMIN_DATA_KV_KEY, data);
+      await kv.set(ADMIN_DATA_KV_KEY, data);
       console.log('[AdminDataStore] KV write success');
       return;
     } catch (error) {
       console.error('[AdminDataStore] KV write failed:', error);
-      // Fall through to file store fallback.
+      if (process.env.VERCEL) {
+        throw new Error('Persistent KV write failed on Vercel. Data was not saved.');
+      }
     }
+  }
+
+  if (process.env.VERCEL) {
+    throw new Error('No persistent store configured on Vercel. Data was not saved.');
   }
 
   console.log('[AdminDataStore] Writing to file store...');
