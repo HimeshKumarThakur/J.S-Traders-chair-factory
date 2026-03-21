@@ -72,6 +72,37 @@ chair-company-website
 - Update the styles in `src/app/globals.css` and `src/styles/variables.css` to change the appearance of the website.
 - Add new pages or features as needed by creating new files in the `src/pages` directory.
 
+## Persistent Admin Data (MySQL on Vercel)
+
+Admin edits are now stored with this priority:
+
+1. MySQL (`MYSQL_URL` or `MYSQL_HOST` + credentials)
+2. Vercel KV (`KV_REST_API_URL`, `KV_REST_API_TOKEN`)
+3. Local file fallback (`data/admin-data.json` or `/tmp` on Vercel)
+
+To keep admin edits forever in production, configure MySQL on Vercel.
+
+### Required environment variables
+
+- `MYSQL_URL` (recommended single connection string)
+
+Or use individual variables:
+
+- `MYSQL_HOST`
+- `MYSQL_PORT` (optional, default `3306`)
+- `MYSQL_USER`
+- `MYSQL_PASSWORD`
+- `MYSQL_DATABASE`
+- `MYSQL_SSL` (`true` by default; set `false` only if your provider requires no SSL)
+
+### Vercel setup
+
+1. Create a managed MySQL database (PlanetScale/Railway/AWS RDS/etc.).
+2. Add the variables above in Vercel Project Settings -> Environment Variables.
+3. Redeploy your project.
+
+The app auto-creates table `js_traders_admin_store` and uses key `js-traders-admin-data-v1`.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a pull request or open an issue for any enhancements or bug fixes.

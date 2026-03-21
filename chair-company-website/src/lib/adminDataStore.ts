@@ -1,15 +1,90 @@
 import { promises as fs } from 'fs';
 import path from 'path';
+import mysql from 'mysql2/promise';
 import type { AdminData, AdminProduct, ProductOverride } from '../types/adminData';
 
+const ADMIN_DATA_MYSQL_KEY = 'js-traders-admin-data-v1';
 const ADMIN_DATA_KV_KEY = 'js-traders-admin-data-v1';
+const hasMysqlConfig = Boolean(
+  process.env.MYSQL_URL ||
+    (process.env.MYSQL_HOST && process.env.MYSQL_USER && process.env.MYSQL_PASSWORD && process.env.MYSQL_DATABASE),
+);
 const hasKvConfig = Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+
+let mysqlPool: mysql.Pool | null = null;
 
 const storePath = process.env.VERCEL
   ? '/tmp/js-traders-admin-data.json'
   : path.join(process.cwd(), 'data', 'admin-data.json');
 
 const emptyStore = (): AdminData => ({ products: [], overrides: [] });
+
+const getMysqlPool = () => {
+  if (mysqlPool) return mysqlPool;
+
+  if (process.env.MYSQL_URL) {
+    mysqlPool = mysql.createPool({
+      uri: process.env.MYSQL_URL,
+      connectionLimit: 5,
+      waitForConnections: true,
+      queueLimit: 0,
+      ssl: process.env.MYSQL_SSL === 'false' ? undefined : { rejectUnauthorized: false },
+    });
+    return mysqlPool;
+  }
+
+  mysqlPool = mysql.createPool({
+    host: process.env.MYSQL_HOST,
+    port: Number(process.env.MYSQL_PORT || 3306),
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE,
+    connectionLimit: 5,
+    waitForConnections: true,
+    queueLimit: 0,
+    ssl: process.env.MYSQL_SSL === 'false' ? undefined : { rejectUnauthorized: false },
+  });
+
+  return mysqlPool;
+};
+
+const ensureMysqlStoreTable = async () => {
+  const pool = getMysqlPool();
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS js_traders_admin_store (
+      store_key VARCHAR(64) NOT NULL PRIMARY KEY,
+      data JSON NOT NULL,
+      updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )
+  `);
+};
+
+const readFromMysql = async (): Promise<AdminData> => {
+  await ensureMysqlStoreTable();
+  const pool = getMysqlPool();
+  const [rows] = await pool.query<mysql.RowDataPacket[]>(
+    'SELECT data FROM js_traders_admin_store WHERE store_key = ? LIMIT 1',
+    [ADMIN_DATA_MYSQL_KEY],
+  );
+
+  if (!rows[0]?.data) return emptyStore();
+
+  const payload = typeof rows[0].data === 'string' ? JSON.parse(rows[0].data) : rows[0].data;
+  return normalizeStore(payload);
+};
+
+const writeToMysql = async (data: AdminData) => {
+  await ensureMysqlStoreTable();
+  const pool = getMysqlPool();
+  await pool.query(
+    `
+      INSERT INTO js_traders_admin_store (store_key, data)
+      VALUES (?, CAST(? AS JSON))
+      ON DUPLICATE KEY UPDATE data = VALUES(data), updated_at = CURRENT_TIMESTAMP
+    `,
+    [ADMIN_DATA_MYSQL_KEY, JSON.stringify(data)],
+  );
+};
 
 const ensureStoreFile = async () => {
   await fs.mkdir(path.dirname(storePath), { recursive: true });
@@ -68,6 +143,14 @@ const normalizeStore = (input: unknown): AdminData => {
 };
 
 export const readAdminDataStore = async (): Promise<AdminData> => {
+  if (hasMysqlConfig) {
+    try {
+      return await readFromMysql();
+    } catch (error) {
+      console.error('MySQL read failed, falling back to KV/file store.', error);
+    }
+  }
+
   if (hasKvConfig) {
     try {
       const { kv } = await import('@vercel/kv');
@@ -88,6 +171,15 @@ export const readAdminDataStore = async (): Promise<AdminData> => {
 };
 
 export const writeAdminDataStore = async (data: AdminData) => {
+  if (hasMysqlConfig) {
+    try {
+      await writeToMysql(data);
+      return;
+    } catch (error) {
+      console.error('MySQL write failed, falling back to KV/file store.', error);
+    }
+  }
+
   if (hasKvConfig) {
     const { kv } = await import('@vercel/kv');
     await kv.set(ADMIN_DATA_KV_KEY, data);
