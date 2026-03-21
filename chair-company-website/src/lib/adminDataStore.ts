@@ -6,11 +6,23 @@ import type { AdminData, AdminProduct, ProductOverride } from '../types/adminDat
 
 const ADMIN_DATA_MYSQL_KEY = 'js-traders-admin-data-v1';
 const ADMIN_DATA_KV_KEY = 'js-traders-admin-data-v1';
-const hasMysqlConfig = Boolean(
-  process.env.MYSQL_URL ||
-    (process.env.MYSQL_HOST && process.env.MYSQL_USER && process.env.MYSQL_PASSWORD && process.env.MYSQL_DATABASE),
-);
-const hasKvConfig = Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+
+const hasMysqlConfig = () =>
+  Boolean(
+    process.env['MYSQL_URL'] ||
+      (process.env['MYSQL_HOST'] &&
+        process.env['MYSQL_USER'] &&
+        process.env['MYSQL_PASSWORD'] &&
+        process.env['MYSQL_DATABASE']),
+  );
+
+const hasKvConfig = () =>
+  Boolean(
+    (process.env['KV_REST_API_URL'] && process.env['KV_REST_API_TOKEN']) ||
+      (process.env['UPSTASH_REDIS_REST_URL'] && process.env['UPSTASH_REDIS_REST_TOKEN']) ||
+      process.env['KV_URL'] ||
+      process.env['REDIS_URL'],
+  );
 
 let mysqlPool: mysql.Pool | null = null;
 
@@ -144,9 +156,11 @@ const normalizeStore = (input: unknown): AdminData => {
 };
 
 export const readAdminDataStore = async (): Promise<AdminData> => {
-  console.log('[AdminDataStore] Reading data... hasMysql:', hasMysqlConfig, 'hasKv:', hasKvConfig);
+  const mysqlEnabled = hasMysqlConfig();
+  const kvEnabled = hasKvConfig();
+  console.log('[AdminDataStore] Reading data... hasMysql:', mysqlEnabled, 'hasKv:', kvEnabled);
   
-  if (hasMysqlConfig) {
+  if (mysqlEnabled) {
     try {
       console.log('[AdminDataStore] Attempting MySQL read...');
       return await readFromMysql();
@@ -155,7 +169,7 @@ export const readAdminDataStore = async (): Promise<AdminData> => {
     }
   }
 
-  if (hasKvConfig) {
+  if (kvEnabled) {
     try {
       console.log('[AdminDataStore] Attempting KV read from key:', ADMIN_DATA_KV_KEY);
       const value = await kv.get<AdminData>(ADMIN_DATA_KV_KEY);
@@ -185,9 +199,11 @@ export const readAdminDataStore = async (): Promise<AdminData> => {
 };
 
 export const writeAdminDataStore = async (data: AdminData) => {
-  console.log('[AdminDataStore] Writing data... hasMysql:', hasMysqlConfig, 'hasKv:', hasKvConfig, 'products:', data.products.length, 'overrides:', data.overrides.length);
+  const mysqlEnabled = hasMysqlConfig();
+  const kvEnabled = hasKvConfig();
+  console.log('[AdminDataStore] Writing data... hasMysql:', mysqlEnabled, 'hasKv:', kvEnabled, 'products:', data.products.length, 'overrides:', data.overrides.length);
   
-  if (hasMysqlConfig) {
+  if (mysqlEnabled) {
     try {
       console.log('[AdminDataStore] Writing to MySQL...');
       await writeToMysql(data);
@@ -198,7 +214,7 @@ export const writeAdminDataStore = async (data: AdminData) => {
     }
   }
 
-  if (hasKvConfig) {
+  if (kvEnabled) {
     try {
       console.log('[AdminDataStore] Writing to KV with key:', ADMIN_DATA_KV_KEY);
       await kv.set(ADMIN_DATA_KV_KEY, data);
