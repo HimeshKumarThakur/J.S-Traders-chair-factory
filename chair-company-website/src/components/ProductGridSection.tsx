@@ -35,6 +35,7 @@ export default function ProductGridSection() {
   const [overrideMap, setOverrideMap] = useState<Record<string, { title: string; image: string; price: number; soldOut: boolean }>>({});
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [maxPrice, setMaxPrice] = useState(55000);
   const [material, setMaterial] = useState<'All' | Product['material']>('All');
   const [rating, setRating] = useState(4.5);
@@ -80,13 +81,20 @@ export default function ProductGridSection() {
   const filteredProducts = useMemo(
     () =>
       resolvedProducts.filter((product) => {
+        const query = searchQuery.trim().toLowerCase();
+        const bySearch =
+          query.length === 0
+            ? true
+            : product.name.toLowerCase().includes(query) ||
+              product.material.toLowerCase().includes(query) ||
+              product.color.toLowerCase().includes(query);
         const byPrice = product.price <= maxPrice;
         const byMaterial = material === 'All' ? true : product.material === material;
         const byRating = product.rating >= rating;
         const byColor = color === 'All' ? true : product.color === color;
-        return byPrice && byMaterial && byRating && byColor;
+        return bySearch && byPrice && byMaterial && byRating && byColor;
       }),
-    [resolvedProducts, maxPrice, material, rating, color],
+    [resolvedProducts, searchQuery, maxPrice, material, rating, color],
   );
 
   return (
@@ -107,79 +115,121 @@ export default function ProductGridSection() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {filteredProducts.map((product) => (
-            <motion.article
-              key={product.id}
-              className="group relative overflow-hidden rounded-2xl border border-black/8 bg-[#F5F5F7] p-3 transition duration-300 hover:border-white/60 hover:bg-white/40 hover:shadow-[0_20px_60px_rgba(0,0,0,0.12)] hover:backdrop-blur-xl"
-              initial={{ opacity: 0, y: 14 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.35, ease: 'easeOut' }}
-              whileHover={{ y: -4 }}
-            >
-              <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-white">
-                <img
-                  src={product.imagePrimary}
-                  alt={`${product.name} primary view`}
-                  className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.03] group-hover:opacity-0"
-                  loading="lazy"
-                  onClick={() => setSelectedProductId(product.id)}
-                />
-                <img
-                  src={product.imageSecondary}
-                  alt={`${product.name} angled view`}
-                  className="absolute inset-0 h-full w-full object-cover opacity-0 transition duration-500 group-hover:opacity-100"
-                  loading="lazy"
-                  onClick={() => setSelectedProductId(product.id)}
-                />
-
-                <div className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center opacity-0 transition group-hover:opacity-100">
-                  {product.soldOut ? (
-                    <span className="pointer-events-auto inline-flex h-11 min-h-[44px] items-center rounded-xl bg-rose-100 px-4 text-sm font-semibold text-rose-700 shadow-lg">
-                      Sold Out
-                    </span>
-                  ) : (
-                    <motion.a
-                      href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-                        `Hello, I want to buy ${product.name}. Please share details.`,
-                      )}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="pointer-events-auto inline-flex h-11 min-h-[44px] items-center rounded-xl bg-[#0F766E] px-4 text-sm font-semibold text-white shadow-lg hover:brightness-110"
-                      aria-label={`Quick buy ${product.name}`}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      Quick Buy
-                    </motion.a>
-                  )}
-                </div>
-              </div>
-
-              <div className="px-1 pb-1 pt-4">
-                <h3 className="text-base font-[700] text-[#1A1A1A]">{product.name}</h3>
-
-                <div className="mt-1 flex items-center gap-2 text-sm text-black/65">
-                  <span>⭐ {product.rating}</span>
-                  <span>({product.reviews})</span>
-                  <span className="h-1 w-1 rounded-full bg-black/30" />
-                  <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">Verified Purchase</span>
-                </div>
-
-                <div className="mt-2 flex items-center justify-between">
-                  <p className="text-lg font-[700] text-[#1A1A1A]">{formatNPR(product.price)}</p>
-                  {product.soldOut ? (
-                    <p className="text-xs font-semibold text-rose-700">Sold Out</p>
-                  ) : (
-                    <p className={`text-xs font-medium ${product.stock <= 3 ? 'text-rose-600' : 'text-black/60'}`}>
-                      {product.stock <= 3 ? `Only ${product.stock} left in Kathmandu` : `${product.stock} in stock`}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </motion.article>
-          ))}
+        <div className="mb-6">
+          <label htmlFor="top-picks-search" className="mb-2 block text-sm font-semibold text-[#1A1A1A]">
+            Search Products
+          </label>
+          <div className="relative">
+            <input
+              id="top-picks-search"
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by product name, material, or color"
+              className="h-11 min-h-[44px] w-full rounded-xl border border-black/15 bg-white px-4 pr-12 text-sm text-[#1A1A1A] outline-none transition focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/20"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-black/55 hover:bg-black/5"
+                aria-label="Clear search"
+              >
+                x
+              </button>
+            )}
+          </div>
         </div>
+
+        {filteredProducts.length === 0 ? (
+          <div className="rounded-2xl border border-black/10 bg-[#F9FAFB] px-5 py-8 text-center">
+            <p className="text-base font-semibold text-[#1A1A1A]">No products matched your search.</p>
+            <p className="mt-1 text-sm text-black/60">Try a different name, material, or color.</p>
+            {searchQuery && (
+              <button
+                type="button"
+                className="mt-4 inline-flex h-11 min-h-[44px] items-center rounded-xl border border-black/15 px-4 text-sm font-semibold text-[#1A1A1A] hover:bg-black/[0.03]"
+                onClick={() => setSearchQuery('')}
+              >
+                Clear Search
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {filteredProducts.map((product) => (
+              <motion.article
+                key={product.id}
+                className="group relative overflow-hidden rounded-2xl border border-black/8 bg-[#F5F5F7] p-3 transition duration-300 hover:border-white/60 hover:bg-white/40 hover:shadow-[0_20px_60px_rgba(0,0,0,0.12)] hover:backdrop-blur-xl"
+                initial={{ opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+                whileHover={{ y: -4 }}
+              >
+                <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-white">
+                  <img
+                    src={product.imagePrimary}
+                    alt={`${product.name} primary view`}
+                    className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.03] group-hover:opacity-0"
+                    loading="lazy"
+                    onClick={() => setSelectedProductId(product.id)}
+                  />
+                  <img
+                    src={product.imageSecondary}
+                    alt={`${product.name} angled view`}
+                    className="absolute inset-0 h-full w-full object-cover opacity-0 transition duration-500 group-hover:opacity-100"
+                    loading="lazy"
+                    onClick={() => setSelectedProductId(product.id)}
+                  />
+
+                  <div className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center opacity-0 transition group-hover:opacity-100">
+                    {product.soldOut ? (
+                      <span className="pointer-events-auto inline-flex h-11 min-h-[44px] items-center rounded-xl bg-rose-100 px-4 text-sm font-semibold text-rose-700 shadow-lg">
+                        Sold Out
+                      </span>
+                    ) : (
+                      <motion.a
+                        href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+                          `Hello, I want to buy ${product.name}. Please share details.`,
+                        )}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="pointer-events-auto inline-flex h-11 min-h-[44px] items-center rounded-xl bg-[#0F766E] px-4 text-sm font-semibold text-white shadow-lg hover:brightness-110"
+                        aria-label={`Quick buy ${product.name}`}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        Quick Buy
+                      </motion.a>
+                    )}
+                  </div>
+                </div>
+
+                <div className="px-1 pb-1 pt-4">
+                  <h3 className="text-base font-[700] text-[#1A1A1A]">{product.name}</h3>
+
+                  <div className="mt-1 flex items-center gap-2 text-sm text-black/65">
+                    <span>⭐ {product.rating}</span>
+                    <span>({product.reviews})</span>
+                    <span className="h-1 w-1 rounded-full bg-black/30" />
+                    <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">Verified Purchase</span>
+                  </div>
+
+                  <div className="mt-2 flex items-center justify-between">
+                    <p className="text-lg font-[700] text-[#1A1A1A]">{formatNPR(product.price)}</p>
+                    {product.soldOut ? (
+                      <p className="text-xs font-semibold text-rose-700">Sold Out</p>
+                    ) : (
+                      <p className={`text-xs font-medium ${product.stock <= 3 ? 'text-rose-600' : 'text-black/60'}`}>
+                        {product.stock <= 3 ? `Only ${product.stock} left in Kathmandu` : `${product.stock} in stock`}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </motion.article>
+            ))}
+          </div>
+        )}
 
         <AnimatePresence>
           {drawerOpen && (
