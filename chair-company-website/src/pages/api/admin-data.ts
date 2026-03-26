@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { readAdminDataStore, writeAdminDataStore } from '../../lib/adminDataStore';
-import type { AdminProduct, ProductOverride } from '../../types/adminData';
+import type { AdminProduct, ProductOverride, AdminData } from '../../types/adminData';
 
 export const config = {
   api: {
@@ -15,7 +15,8 @@ type ActionBody =
   | { type: 'updateProduct'; id: string; payload: Omit<AdminProduct, 'id' | 'createdAt'> }
   | { type: 'removeProduct'; id: string }
   | { type: 'upsertOverride'; payload: Omit<ProductOverride, 'updatedAt'> }
-  | { type: 'removeOverride'; id: string };
+  | { type: 'removeOverride'; id: string }
+  | { popupMessage: string };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -34,7 +35,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const body = req.body as ActionBody;
     const current = await readAdminDataStore();
 
-    switch (body.type) {
+    // Handle popupMessage update
+    if ('popupMessage' in body) {
+      const updated: AdminData = { ...current, popupMessage: body.popupMessage };
+      await writeAdminDataStore(updated);
+      res.status(200).json(updated);
+      return;
+    }
+
+    switch ((body as any).type) {
       case 'addProduct': {
         const next: AdminProduct = {
           id: `admin-${Date.now()}`,

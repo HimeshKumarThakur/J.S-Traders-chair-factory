@@ -9,7 +9,7 @@ const storePath = process.env.VERCEL
   ? '/tmp/js-traders-admin-data.json'
   : path.join(process.cwd(), 'data', 'admin-data.json');
 
-const emptyStore = (): AdminData => ({ products: [], overrides: [] });
+const emptyStore = (): AdminData => ({ products: [], overrides: [], popupMessage: "" });
 
 const getRedisRestUrl = () => process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL || '';
 
@@ -62,6 +62,7 @@ const normalizeStore = (input: unknown): AdminData => {
   return {
     products: normalizedProducts,
     overrides: normalizedOverrides,
+    popupMessage: typeof (input as any).popupMessage === 'string' ? (input as any).popupMessage : "",
   };
 };
 
