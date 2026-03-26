@@ -59,10 +59,18 @@ const normalizeStore = (input: unknown): AdminData => {
     return [{ ...candidate, soldOut: Boolean(candidate.soldOut) }];
   });
 
+  // Always ensure popupMessage exists, even if missing in Upstash/Redis or old data
+  let popupMessage = "";
+  if (typeof (input as any).popupMessage === 'string') {
+    popupMessage = (input as any).popupMessage;
+  } else if (maybe && 'popupMessage' in maybe && typeof maybe.popupMessage === 'string') {
+    popupMessage = maybe.popupMessage;
+  }
+
   return {
     products: normalizedProducts,
     overrides: normalizedOverrides,
-    popupMessage: typeof (input as any).popupMessage === 'string' ? (input as any).popupMessage : "",
+    popupMessage,
   };
 };
 
